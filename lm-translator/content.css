@@ -1,0 +1,349 @@
+/* LM Translator - Apple-Style Content CSS */
+
+/* ─── Floating Ball ─────────────────────────────────────────────────────── */
+#lmt-ball {
+  position: fixed;
+  width: 52px;
+  height: 52px;
+  z-index: 2147483647;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.lmt-ball-inner {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #1c1c1e, #2c2c2e);
+  box-shadow:
+    0 4px 24px rgba(0, 0, 0, 0.35),
+    0 1px 4px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255,255,255,0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #f5f5f7;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.2s ease,
+              background 0.2s ease;
+  position: relative;
+  z-index: 1;
+}
+
+.lmt-ball-pulse {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  background: rgba(99, 179, 237, 0.15);
+  animation: lmt-pulse 2.5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes lmt-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.6; }
+  50% { transform: scale(1.15); opacity: 0; }
+}
+
+#lmt-ball:hover .lmt-ball-inner {
+  transform: scale(1.08);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.45),
+    0 2px 8px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255,255,255,0.12);
+}
+
+#lmt-ball:active .lmt-ball-inner {
+  transform: scale(0.94);
+}
+
+#lmt-ball.lmt-disabled .lmt-ball-inner {
+  background: linear-gradient(145deg, #3a3a3c, #4a4a4c);
+  color: #636366;
+}
+
+#lmt-ball.lmt-disabled .lmt-ball-pulse {
+  display: none;
+}
+
+#lmt-ball.lmt-dragging {
+  cursor: grabbing;
+}
+
+/* ─── Translation Panel ─────────────────────────────────────────────────── */
+#lmt-panel {
+  position: fixed;
+  z-index: 2147483646;
+  width: 310px;
+  display: none;
+  flex-direction: column;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 20px;
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.04),
+    0 8px 24px rgba(0, 0, 0, 0.10),
+    0 24px 64px rgba(0, 0, 0, 0.12);
+  overflow: hidden;
+  font-family: -apple-system, 'SF Pro Text', BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+  opacity: 0;
+  transform: translateY(8px) scale(0.97);
+  transition:
+    opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+#lmt-panel.lmt-panel-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* Header */
+.lmt-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px 10px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  cursor: grab;
+  background: rgba(0,0,0,0.015);
+}
+
+.lmt-panel-header:active {
+  cursor: grabbing;
+}
+
+.lmt-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lmt-logo-icon {
+  width: 26px;
+  height: 26px;
+  background: linear-gradient(145deg, #1c1c1e, #2c2c2e);
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #f5f5f7;
+  flex-shrink: 0;
+}
+
+.lmt-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1c1c1e;
+  letter-spacing: -0.2px;
+}
+
+.lmt-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.lmt-btn-icon {
+  width: 26px;
+  height: 26px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #8e8e93;
+  transition: background 0.15s ease, color 0.15s ease;
+  flex-shrink: 0;
+  padding: 0;
+}
+
+.lmt-btn-icon:hover {
+  background: rgba(0,0,0,0.07);
+  color: #1c1c1e;
+}
+
+.lmt-btn-icon.lmt-pinned {
+  color: #007aff;
+  background: rgba(0, 122, 255, 0.1);
+}
+
+/* Source area */
+.lmt-source-area {
+  padding: 12px 14px 10px;
+  position: relative;
+}
+
+.lmt-lang-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 100px;
+  font-size: 10px;
+  font-weight: 600;
+  color: #8e8e93;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.lmt-lang-target {
+  background: rgba(0, 122, 255, 0.08);
+  color: #007aff;
+}
+
+.lmt-source-text {
+  font-size: 14px;
+  color: #1c1c1e;
+  line-height: 1.5;
+  font-weight: 400;
+  max-height: 72px;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  word-break: break-word;
+}
+
+/* Divider */
+.lmt-divider {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 14px;
+  margin: 0;
+}
+
+.lmt-divider-line {
+  flex: 1;
+  height: 1px;
+  background: rgba(0,0,0,0.06);
+}
+
+.lmt-arrow-icon {
+  color: #c7c7cc;
+  display: flex;
+  align-items: center;
+}
+
+/* Result area */
+.lmt-result-area {
+  padding: 10px 14px 12px;
+  min-height: 80px;
+}
+
+.lmt-result-text {
+  font-size: 15px;
+  color: #1c1c1e;
+  line-height: 1.6;
+  font-weight: 400;
+  max-height: 120px;
+  overflow-y: auto;
+  word-break: break-word;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0,0,0,0.12) transparent;
+}
+
+.lmt-result-text::-webkit-scrollbar {
+  width: 3px;
+}
+
+.lmt-result-text::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.lmt-result-text::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.12);
+  border-radius: 10px;
+}
+
+.lmt-placeholder {
+  color: #c7c7cc;
+  font-size: 14px;
+}
+
+.lmt-error {
+  color: #ff3b30;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* Typing indicator */
+.lmt-typing-indicator {
+  display: none;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 0;
+}
+
+.lmt-typing-indicator span {
+  width: 6px;
+  height: 6px;
+  background: #c7c7cc;
+  border-radius: 50%;
+  display: inline-block;
+  animation: lmt-bounce 1.2s ease-in-out infinite;
+}
+
+.lmt-typing-indicator span:nth-child(1) { animation-delay: 0s; }
+.lmt-typing-indicator span:nth-child(2) { animation-delay: 0.15s; }
+.lmt-typing-indicator span:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes lmt-bounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+  30% { transform: translateY(-5px); opacity: 1; }
+}
+
+/* Footer */
+.lmt-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 14px 10px;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  background: rgba(0,0,0,0.015);
+}
+
+.lmt-model-badge {
+  font-size: 10px;
+  color: #aeaeb2;
+  font-weight: 500;
+  letter-spacing: -0.1px;
+  max-width: 160px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lmt-copy-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  background: transparent;
+  border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 100px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #636366;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.lmt-copy-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: #1c1c1e;
+  border-color: rgba(0,0,0,0.15);
+}
+
+.lmt-copy-btn.lmt-copied {
+  background: rgba(52, 199, 89, 0.1);
+  border-color: rgba(52, 199, 89, 0.3);
+  color: #34c759;
+}

@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LM Translator</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    width: 300px;
+    background: #f2f2f7;
+    font-family: -apple-system, 'SF Pro Text', BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    color: #1c1c1e;
+    min-height: 320px;
+  }
+
+  /* Header */
+  .header {
+    background: linear-gradient(145deg, #1c1c1e, #2c2c2e);
+    padding: 20px 18px 18px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 80% 20%, rgba(99,179,237,0.12) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .header-inner {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+  }
+
+  .app-icon {
+    width: 44px;
+    height: 44px;
+    background: linear-gradient(145deg, #2c2c2e, #3a3a3c);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    flex-shrink: 0;
+  }
+
+  .app-icon svg { color: #f5f5f7; }
+
+  .header-text h1 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #f5f5f7;
+    letter-spacing: -0.3px;
+  }
+
+  .header-text p {
+    font-size: 11px;
+    color: #636366;
+    margin-top: 2px;
+  }
+
+  /* Status bar */
+  .status-bar {
+    background: white;
+    margin: 12px 12px 0;
+    border-radius: 14px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+
+  .status-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #34c759;
+    box-shadow: 0 0 0 3px rgba(52, 199, 89, 0.15);
+    transition: all 0.3s ease;
+  }
+
+  .status-dot.off {
+    background: #c7c7cc;
+    box-shadow: none;
+  }
+
+  .status-text {
+    font-size: 13px;
+    font-weight: 500;
+    color: #1c1c1e;
+  }
+
+  .status-sub {
+    font-size: 11px;
+    color: #8e8e93;
+    margin-top: 1px;
+  }
+
+  /* Toggle */
+  .toggle {
+    position: relative;
+    width: 44px;
+    height: 26px;
+    flex-shrink: 0;
+  }
+
+  .toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
+  }
+
+  .toggle-track {
+    position: absolute;
+    inset: 0;
+    background: #c7c7cc;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: background 0.25s ease;
+  }
+
+  .toggle-track::after {
+    content: '';
+    position: absolute;
+    left: 3px;
+    top: 3px;
+    width: 20px;
+    height: 20px;
+    background: white;
+    border-radius: 50%;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .toggle input:checked + .toggle-track {
+    background: #34c759;
+  }
+
+  .toggle input:checked + .toggle-track::after {
+    transform: translateX(18px);
+  }
+
+  /* Settings */
+  .section {
+    margin: 10px 12px 0;
+  }
+
+  .section-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #8e8e93;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 0 4px;
+    margin-bottom: 6px;
+  }
+
+  .settings-card {
+    background: white;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+
+  .setting-row {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    gap: 12px;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+  }
+
+  .setting-row:last-child {
+    border-bottom: none;
+  }
+
+  .setting-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 14px;
+  }
+
+  .setting-icon.blue { background: rgba(0, 122, 255, 0.12); color: #007aff; }
+  .setting-icon.green { background: rgba(52, 199, 89, 0.12); color: #34c759; }
+  .setting-icon.orange { background: rgba(255, 149, 0, 0.12); color: #ff9500; }
+
+  .setting-content {
+    flex: 1;
+  }
+
+  .setting-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: #1c1c1e;
+  }
+
+  .setting-desc {
+    font-size: 11px;
+    color: #8e8e93;
+    margin-top: 1px;
+  }
+
+  .setting-input {
+    width: 80px;
+    padding: 5px 8px;
+    background: #f2f2f7;
+    border: 1px solid rgba(0,0,0,0.08);
+    border-radius: 8px;
+    font-size: 13px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    color: #1c1c1e;
+    text-align: center;
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .setting-input:focus {
+    border-color: #007aff;
+    box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.12);
+    background: white;
+  }
+
+  /* Connection test */
+  .test-btn {
+    width: calc(100% - 24px);
+    margin: 10px 12px;
+    padding: 11px;
+    background: linear-gradient(145deg, #1c1c1e, #2c2c2e);
+    color: #f5f5f7;
+    border: none;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: -0.1px;
+    font-family: inherit;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .test-btn:hover { opacity: 0.9; }
+  .test-btn:active { transform: scale(0.98); }
+
+  .test-btn.success {
+    background: linear-gradient(145deg, #248a3d, #34c759);
+  }
+
+  .test-btn.error {
+    background: linear-gradient(145deg, #c0392b, #ff3b30);
+  }
+
+  /* Footer */
+  .footer {
+    padding: 10px 16px 14px;
+    text-align: center;
+  }
+
+  .footer p {
+    font-size: 10px;
+    color: #c7c7cc;
+  }
+
+  .footer a {
+    color: #007aff;
+    text-decoration: none;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div class="app-icon">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <path d="M8 9h8M8 12h5M6.5 17l2-4 2 4M14.5 12v5M13 14.5h3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="header-text">
+      <h1>LM Translator</h1>
+      <p>由本地 LM Studio 驱动</p>
+    </div>
+  </div>
+</div>
+
+<!-- Status & Toggle -->
+<div class="status-bar">
+  <div class="status-left">
+    <div class="status-dot" id="statusDot"></div>
+    <div>
+      <div class="status-text" id="statusText">已启用</div>
+      <div class="status-sub">选中文字即可翻译</div>
+    </div>
+  </div>
+  <label class="toggle">
+    <input type="checkbox" id="enableToggle" checked>
+    <div class="toggle-track"></div>
+  </label>
+</div>
+
+<!-- Settings -->
+<div class="section">
+  <div class="section-label">连接设置</div>
+  <div class="settings-card">
+    <div class="setting-row">
+      <div class="setting-icon blue">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+          <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="setting-content">
+        <div class="setting-label">LM Studio 端口</div>
+        <div class="setting-desc">本地服务器端口号</div>
+      </div>
+      <input type="text" class="setting-input" id="portInput" value="1234" placeholder="1234">
+    </div>
+  </div>
+</div>
+
+<!-- Test Connection -->
+<button class="test-btn" id="testBtn">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+    <path d="M8.5 12.5l2.5 2.5 5-5M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+  <span id="testBtnText">测试连接</span>
+</button>
+
+<div class="footer">
+  <p>LM Translator · 本地 AI 翻译插件</p>
+</div>
+
+<script src="popup.js"></script>
+</body>
+</html>
